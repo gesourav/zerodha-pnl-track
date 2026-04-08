@@ -10,6 +10,10 @@
 |:---:|:---:|
 | ![Dashboard](./.assets/screenshot-dashboard.png "Dashboard") | ![Alert](./.assets/screenshot-alert.png "Telegram Alert") |
 
+## 🎥 Demo Video
+
+Watch the extension demo here: [YouTube Demo](https://youtu.be/3IOdcy1gvI0)
+
 ---
 
 ## 🧠 How It Works
