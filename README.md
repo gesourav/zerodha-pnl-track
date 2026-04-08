@@ -4,89 +4,82 @@
 
 ---
 
+## 📸 Screenshots
+
+| Dashboard View | Telegram Alert Example |
+|:---:|:---:|
+| ![Dashboard](./.assets/screenshot-dashboard.png "Dashboard") | ![Alert](./.assets/screenshot-alert.png "Telegram Alert") |
+
+---
+
 ## 🧠 How It Works
 
-- Runs entirely in your browser
-- Scrapes Kite Positions page
-- Groups positions into strategies
-- Monitors real-time P&L
-- Sends instant Telegram alerts
+- Runs entirely in your browser (no external servers to pass sensitive data to)
+- Scrapes Kite Positions page locally
+- Allows creating user-defined "Groups" from active positions
+- Monitors real-time Net P&L for these specific groups
+- Sends instant Telegram messages based on your exact Target and Stoploss figures.
 
 ---
 
 ## 📦 Installation
 
-⚠️ This is a private extension — install manually
+⚠️ This is a custom, private browser extension. You must install it manually.
 
-1. Open Chrome:
-chrome://extensions/
-
-2. Enable Developer mode (top-right)
-
-3. Click "Load unpacked"
-
-4. Select your folder:
-/Users/.../zerodha-extension
-
-5. Pin extension:
-Click 🧩 → 📌 Pin
+1. Open Chrome and navigate to the extensions page:
+   ```
+   chrome://extensions/
+   ```
+2. Enable **Developer mode** via the toggle switch in the top-right corner.
+3. Click the **"Load unpacked"** button in the top-left area.
+4. Select the location of this directory:
+   `/Users/.../zerodha-extension/`
+5. Pin the extension for quick visibility:
+   *Click the Puzzle 🧩 icon in the Chrome toolbar → Click the 📌 Pin icon next to "Zerodha P&L Sentinel"*
 
 ---
 
-## 🚀 Usage
+## 🚀 Usage Guide
 
 ### 1. Configure Telegram
+- Open the extension by clicking its icon.
+- Go to **Settings ⚙️**.
+- Enter your **Bot Token** and **Chat ID**.
+- Click **Save**.
 
-- Open extension
-- Go to Settings ⚙️
-- Enter Bot Token & Chat ID
-- Save
-
----
-
-### 2. Open Kite
-
+### 2. Prepare Kite Workspace
+Open the positions page and keep it active during market hours:
+```
 https://kite.zerodha.com/positions
-
-IMPORTANT:
-- Tab must stay open
-- Do not minimize or sleep system
+```
+> **❗ IMPORTANT:** The tab must stay open, as the script needs to dynamically read the web page DOM. Do not minimize the window or let your system sleep.
 
 ---
 
-### 3. Create Groups
-
-- Select positions (CE/PE etc.)
-- Set:
-  - Target (e.g. 1000)
-  - Stoploss (e.g. -500)
-- Click Create Group
+### 3. Create Monitoring Groups
+- In the open popup, you will see a list of open NFO positions.
+- Use the checkboxes to select legs belonging to a single strategy (e.g., matching CE and PE).
+- Define group parameters:
+  - **Group Name:** A memorable alias (e.g., 'BankNifty Straddle').
+  - **Target:** A profit target where an alert is desired (e.g., 1000).
+  - **Stoploss:** A stop limit target where an alert is desired (e.g., -500).
+- Click **Create Group**.
 
 ---
 
 ### 4. Alerts
+Alerts automatically trigger and post to your configured Telegram bot when:
+- Combined Net P&L ≥ Target
+- Combined Net P&L ≤ Stoploss
 
-- Trigger when:
-  - P&L ≥ Target
-  - P&L ≤ Stoploss
-- Sent via Telegram
-
-Cooldown: 5 minutes per group
-
-Auto-close: Stops tracking when Net Qty = 0
-
----
-
-## 🧪 Test
-
-Use:
-Target: +10
-Stoploss: -10
+**Key Features:**
+- **Cooldown Throttle**: To prevent Telegram spam, a single group will not fire another alert for *5 minutes* after triggering.
+- **Auto-Close detection**: If the total net quantity of your group positions is `0` (i.e. you have squared off the trades), it halts alerts for that group.
 
 ---
 
 ## ⚠️ Disclaimer
 
-- Depends on Kite UI (may break)
-- No trade execution
-- Use at your own risk
+- This extension depends inherently on Zerodha Kite's Document Object Model (HTML classes, hierarchy, etc.). Updates deployed by Zerodha may potentially break functionality unexpectedly.
+- This codebase **does not** execute trades. It serves strictly as a monitoring notification service.
+- **Not financial advice. Use responsibly** Ensure your device is secure.
