@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container dark-theme">
+        <header>
+            <div class="logo">
+                <span class="pulse"></span> P&L Sentinel
+            </div>
+            <button id="settingsBtn" class="icon-btn">⚙️</button>
+        </header>
+
+        <main id="mainView">
+            <div class="section-title">Open NFO Positions</div>
+            <div id="positionsList" class="positions-list">
+                <!-- Dynamically populated -->
+            </div>
+            
+            <div class="create-group-box">
+                <input type="text" id="groupName" placeholder="Group Name..." />
+                <div class="thresholds">
+                    <input type="number" id="groupTarget" placeholder="Target (e.g. 500)" />
+                    <input type="number" id="groupSL" placeholder="Stoploss (e.g. -200)" />
+                </div>
+                <button id="createGroupBtn" class="primary-btn">Create Group</button>
+            </div>
+
+            <div class="section-title">Active Groups</div>
+            <div id="groupsList" class="groups-list">
+                <!-- Dynamically populated -->
+            </div>
+        </main>
+
+        <main id="settingsView" class="hidden">
+            <div class="section-title">Telegram Settings</div>
+            <div class="input-group">
+                <label>Bot Token</label>
+                <input type="password" id="botToken" placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11" />
+            </div>
+            <div class="input-group">
+                <label>Chat ID</label>
+                <input type="text" id="chatId" placeholder="123456789" />
+            </div>
+            <button id="saveSettingsBtn" class="primary-btn">Save Settings</button>
+            <button id="backBtn" class="secondary-btn" style="margin-top: 8px;">Back</button>
+        </main>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>
