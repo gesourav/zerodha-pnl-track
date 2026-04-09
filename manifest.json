@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Zerodha P&L Sentinel",
   "version": "1.0",
-  "description": "Monitors Zerodha NFO positions and sends Telegram alerts based on group P&L.",
+  "description": "Monitors Zerodha FnO positions and sends Telegram alerts based on group P&L.",
   "permissions": [
     "storage"
   ],

@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         positionsList.innerHTML = '';
         if (positions.length === 0) {
-            positionsList.innerHTML = '<div style="font-size:12px; color:var(--text-muted);">No open NFO positions detected. Please open Kite tabs.</div>';
+            positionsList.innerHTML = '<div style="font-size:12px; color:var(--text-muted);">No open FnO positions detected. Please open Kite tabs.</div>';
             return;
         }
         
@@ -86,7 +86,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Create Group
-    document.getElementById('createGroupBtn').addEventListener('click', () => {
+    document.getElementById('createGroupBtn').addEventListener('click', (e) => {
+        const btn = e.target;
+        const editId = btn.getAttribute('data-edit-id');
+
         const checkboxes = document.querySelectorAll('.pos-checkbox:checked');
         if (checkboxes.length === 0) {
             alert('Select at least one position');
@@ -102,25 +105,59 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const instruments = Array.from(checkboxes).map(cb => cb.value);
         
-        const newGroup = {
-            id: Date.now().toString(),
-            name,
-            instruments,
-            target,
-            stoploss
-        };
-        
         chrome.storage.local.get(['groups'], (res) => {
-            const groups = res.groups || [];
-            groups.push(newGroup);
+            let groups = res.groups || [];
+            
+            if (editId) {
+                const index = groups.findIndex(g => g.id === editId);
+                if (index !== -1) {
+                    groups[index] = {
+                        ...groups[index],
+                        name, instruments, target, stoploss
+                    };
+                }
+                btn.textContent = 'Create Group';
+                btn.removeAttribute('data-edit-id');
+                document.getElementById('cancelEditBtn').classList.add('hidden');
+            } else {
+                const newGroup = {
+                    id: Date.now().toString(),
+                    name,
+                    instruments,
+                    target,
+                    stoploss
+                };
+                groups.push(newGroup);
+            }
+            
             chrome.storage.local.set({ groups }, () => {
                 renderGroups(groups);
                 document.getElementById('groupName').value = '';
                 document.getElementById('groupTarget').value = '';
                 document.getElementById('groupSL').value = '';
-                checkboxes.forEach(c => c.checked = false);
+                document.querySelectorAll('.pos-checkbox').forEach(c => c.checked = false);
+
+                document.getElementById('lblGroupName').textContent = 'Group Name';
+                document.getElementById('lblGroupTarget').textContent = 'Target (₹)';
+                document.getElementById('lblGroupSL').textContent = 'Stoploss (₹)';
             });
         });
+    });
+
+    document.getElementById('cancelEditBtn').addEventListener('click', () => {
+        const btn = document.getElementById('createGroupBtn');
+        btn.textContent = 'Create Group';
+        btn.removeAttribute('data-edit-id');
+        document.getElementById('cancelEditBtn').classList.add('hidden');
+        
+        document.getElementById('groupName').value = '';
+        document.getElementById('groupTarget').value = '';
+        document.getElementById('groupSL').value = '';
+        document.querySelectorAll('.pos-checkbox').forEach(c => c.checked = false);
+
+        document.getElementById('lblGroupName').textContent = 'Group Name';
+        document.getElementById('lblGroupTarget').textContent = 'Target (₹)';
+        document.getElementById('lblGroupSL').textContent = 'Stoploss (₹)';
     });
 
     // Render Groups
@@ -157,13 +194,39 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <div class="group-targets">
                         <span>TG: ${group.target !== null ? '₹'+group.target : '-'} | SL: ${group.stoploss !== null ? '₹'+group.stoploss : '-'}</span>
-                        <button class="delete-btn" data-id="${group.id}">Delete</button>
+                        <div>
+                            <button class="edit-btn" data-id="${group.id}">Edit</button>
+                            <button class="delete-btn" data-id="${group.id}">Delete</button>
+                        </div>
                     </div>
                     <div style="font-size:10px; color:#64748b; margin-top:4px;">
                         Legs: ${group.instruments.join(', ')}
                     </div>
                 `;
                 div.innerHTML = html;
+                
+                div.querySelector('.edit-btn').addEventListener('click', (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    const targetGroup = groups.find(g => g.id === id);
+                    if (!targetGroup) return;
+                    
+                    document.getElementById('groupName').value = targetGroup.name;
+                    document.getElementById('groupTarget').value = targetGroup.target !== null ? targetGroup.target : '';
+                    document.getElementById('groupSL').value = targetGroup.stoploss !== null ? targetGroup.stoploss : '';
+                    
+                    document.querySelectorAll('.pos-checkbox').forEach(cb => {
+                        cb.checked = targetGroup.instruments.includes(cb.value);
+                    });
+                    
+                    const btn = document.getElementById('createGroupBtn');
+                    btn.textContent = 'Update Group';
+                    btn.setAttribute('data-edit-id', id);
+                    document.getElementById('cancelEditBtn').classList.remove('hidden');
+
+                    document.getElementById('lblGroupName').textContent = 'New Name';
+                    document.getElementById('lblGroupTarget').textContent = 'New TGT';
+                    document.getElementById('lblGroupSL').textContent = 'New SL';
+                });
                 
                 div.querySelector('.delete-btn').addEventListener('click', (e) => {
                     const id = e.target.getAttribute('data-id');

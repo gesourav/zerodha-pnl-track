@@ -13,15 +13,15 @@ function parsePositions() {
             
             cells.forEach((cell, index) => {
                 const text = cell.innerText.trim();
-                if (text.includes('NFO')) {
+                if (text.includes('NFO') || text.includes('BFO')) {
                     isNfo = true;
                     instrumentNameStr = text.replace('\n', ' ');
                 }
             });
             
             if (isNfo) {
-                // Find index of NFO string cell to relative match Qty and PNL
-                const nfoCellIndex = Array.from(cells).findIndex(c => c.innerText.includes('NFO'));
+                // Find index of NFO/BFO string cell to relative match Qty and PNL
+                const nfoCellIndex = Array.from(cells).findIndex(c => c.innerText.includes('NFO') || c.innerText.includes('BFO'));
                 
                 if (nfoCellIndex !== -1 && cells.length > nfoCellIndex + 3) {
                     const qtyStr = cells[nfoCellIndex + 1].innerText.replace(/,/g, '');
@@ -59,4 +59,4 @@ function parsePositions() {
 }
 
 // Poll every 2 seconds
-setInterval(parsePositions, 2000);
+setInterval(parsePositions, 500);

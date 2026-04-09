@@ -61,7 +61,7 @@ https://kite.zerodha.com/positions
 ---
 
 ### 3. Create Monitoring Groups
-- In the open popup, you will see a list of open NFO positions.
+- In the open popup, you will see a list of open FnO positions.
 - Use the checkboxes to select legs belonging to a single strategy (e.g., matching CE and PE).
 - Define group parameters:
   - **Group Name:** A memorable alias (e.g., 'BankNifty Straddle').

@@ -228,6 +228,16 @@ input:focus {
     color: var(--text-muted);
     margin-top: 4px;
 }
+.edit-btn {
+    background: none;
+    border: none;
+    color: var(--accent);
+    cursor: pointer;
+    font-size: 12px;
+    margin-right: 8px;
+}
+.edit-btn:hover { text-decoration: underline; }
+
 .delete-btn {
     background: none;
     border: none;
