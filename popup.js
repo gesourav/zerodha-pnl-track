@@ -161,16 +161,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Render Groups
-    function renderGroups(groups) {
+    function renderGroups(groups, onComplete) {
         groupsList.innerHTML = '';
         if (groups.length === 0) {
             groupsList.innerHTML = '<div style="font-size:12px; color:var(--text-muted);">No active groups.</div>';
+            if (onComplete) onComplete();
             return;
         }
-        
+
         chrome.storage.local.get(['currentPositions'], (res) => {
             const positions = res.currentPositions || [];
-            
+
             groups.forEach(group => {
                 let currentPnl = 0;
                 let isSqOff = true;
@@ -238,15 +239,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 groupsList.appendChild(div);
             });
+
+            if (onComplete) onComplete();
         });
     }
 
-    // Auto-refresh UI every second if open
+    // Auto-refresh UI every 1.5s — preserve scroll position to avoid jump
     setInterval(() => {
         chrome.storage.local.get(['currentPositions', 'groups'], (res) => {
-            if(res.currentPositions) {
+            if (res.currentPositions) {
+                const bodyScroll = document.documentElement.scrollTop || document.body.scrollTop;
+                const listScroll = groupsList.scrollTop;
                 renderPositions(res.currentPositions || []);
-                renderGroups(res.groups || []);
+                renderGroups(res.groups || [], () => {
+                    document.documentElement.scrollTop = bodyScroll;
+                    document.body.scrollTop = bodyScroll;
+                    groupsList.scrollTop = listScroll;
+                });
             }
         });
     }, 1500);
