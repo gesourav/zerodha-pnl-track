@@ -41,6 +41,7 @@ function parsePositions() {
                     positions.push({
                         instrument: instrumentNameStr,
                         qty: isNaN(qty) ? 0 : qty,
+                        ltp: isNaN(parseFloat(ltpStr)) ? 0 : parseFloat(ltpStr),
                         pnl: isNaN(pnl) ? 0 : pnl
                     });
                 }

@@ -160,6 +160,82 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('lblGroupSL').textContent = 'Stoploss (₹)';
     });
 
+    // Parse CE/PE type and strike from instrument string
+    function parseInstrument(instrumentStr) {
+        const match = instrumentStr.match(/(\d+)\s*(CE|PE)/i);
+        if (!match) return { strike: '', optionType: '' };
+        return { strike: parseInt(match[1], 10), optionType: match[2].toUpperCase() };
+    }
+
+    // Download group positions as styled Excel (.xls)
+    function downloadGroupExcel(group, positions) {
+        const rows = group.instruments.map(inst => {
+            const pos = positions.find(p => p.instrument === inst);
+            if (!pos || pos.qty === 0) return null;
+            const { strike, optionType } = parseInstrument(inst);
+            const tradeType = pos.qty < 0 ? 'SELL' : 'BUY';
+            const qty = Math.abs(pos.qty);
+            const ltp = pos.ltp || 0;
+            const exposure = qty * ltp;
+            return { tradeType, strike, optionType, qty, ltp, exposure };
+        }).filter(Boolean);
+
+        const ce = rows.filter(r => r.optionType === 'CE');
+        const pe = rows.filter(r => r.optionType === 'PE');
+        const maxRows = Math.max(ce.length, pe.length);
+
+        const ceHdr = 'background:#C00000;color:white;font-weight:bold;text-align:center;padding:4px 8px;border:1px solid #aaa;';
+        const peHdr = 'background:#375623;color:white;font-weight:bold;text-align:center;padding:4px 8px;border:1px solid #aaa;';
+        const colHdr = 'background:#1a1a1a;color:white;font-weight:bold;padding:4px 8px;border:1px solid #aaa;';
+        const cell = 'padding:4px 8px;border:1px solid #ccc;';
+        const sellStyle = 'color:#C00000;font-weight:bold;padding:4px 8px;border:1px solid #ccc;';
+        const buyStyle = 'color:#375623;font-weight:bold;padding:4px 8px;border:1px solid #ccc;';
+        const spacer = '<td style="padding:4px 16px;"></td>';
+
+        let tableRows = `<tr>
+            <td colspan="5" style="${ceHdr}">CE</td>
+            ${spacer}
+            <td colspan="5" style="${peHdr}">PE</td>
+        </tr><tr>
+            <th style="${colHdr}">Type</th><th style="${colHdr}">Strike</th><th style="${colHdr}">Qty</th><th style="${colHdr}">Price</th><th style="${colHdr}">Exposure</th>
+            ${spacer}
+            <th style="${colHdr}">Type</th><th style="${colHdr}">Strike</th><th style="${colHdr}">Qty</th><th style="${colHdr}">Price</th><th style="${colHdr}">Exposure</th>
+        </tr>`;
+
+        for (let i = 0; i < maxRows; i++) {
+            const c = ce[i];
+            const p = pe[i];
+            tableRows += '<tr>';
+            if (c) {
+                tableRows += `<td style="${c.tradeType==='SELL'?sellStyle:buyStyle}">${c.tradeType}</td><td style="${cell}">${c.strike}</td><td style="${cell}">${c.qty}</td><td style="${cell}">${c.ltp}</td><td style="${cell}">${c.exposure.toFixed(2)}</td>`;
+            } else {
+                tableRows += `<td style="${cell}"></td><td style="${cell}"></td><td style="${cell}"></td><td style="${cell}"></td><td style="${cell}"></td>`;
+            }
+            tableRows += spacer;
+            if (p) {
+                tableRows += `<td style="${p.tradeType==='SELL'?sellStyle:buyStyle}">${p.tradeType}</td><td style="${cell}">${p.strike}</td><td style="${cell}">${p.qty}</td><td style="${cell}">${p.ltp}</td><td style="${cell}">${p.exposure.toFixed(2)}</td>`;
+            } else {
+                tableRows += `<td style="${cell}"></td><td style="${cell}"></td><td style="${cell}"></td><td style="${cell}"></td><td style="${cell}"></td>`;
+            }
+            tableRows += '</tr>';
+        }
+
+        const html = `<html><head><meta charset="UTF-8"></head><body>
+            <h3 style="font-family:Arial">${group.name} — Positions Snapshot</h3>
+            <table style="border-collapse:collapse;font-family:Arial;font-size:13px;">${tableRows}</table>
+        </body></html>`;
+
+        const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${group.name.replace(/\s+/g,'_')}_positions.xls`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
     // Render Groups
     function renderGroups(groups, onComplete) {
         groupsList.innerHTML = '';
@@ -198,6 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div>
                             <button class="edit-btn" data-id="${group.id}">Edit</button>
                             <button class="delete-btn" data-id="${group.id}">Delete</button>
+                            <button class="download-btn" data-id="${group.id}">&#8595; XLS</button>
                         </div>
                     </div>
                     <div style="font-size:10px; color:#64748b; margin-top:4px;">
@@ -236,7 +313,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         renderGroups(updated);
                     });
                 });
-                
+
+                div.querySelector('.download-btn').addEventListener('click', (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    const targetGroup = groups.find(g => g.id === id);
+                    if (!targetGroup) return;
+                    downloadGroupExcel(targetGroup, positions);
+                });
+
                 groupsList.appendChild(div);
             });
 
