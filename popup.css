@@ -46,6 +46,12 @@ header {
     gap: 8px;
 }
 
+.logo-img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
 .pulse {
     width: 8px;
     height: 8px;

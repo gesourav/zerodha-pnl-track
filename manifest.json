@@ -13,6 +13,11 @@
     "default_popup": "popup.html",
     "default_title": "Zerodha P&L Tracker"
   },
+  "icons": {
+    "16": "kite-logo.png",
+    "48": "kite-logo.png",
+    "128": "kite-logo.png"
+  },
   "background": {
     "service_worker": "background.js",
     "type": "module"
