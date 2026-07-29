@@ -82,6 +82,30 @@ Alerts automatically trigger and post to your configured Telegram bot when:
 
 ---
 
+## ⚙️ Configuration (`config.js`)
+
+All tunable timings live in a single file, **`config.js`**. Change a value there and it takes effect everywhere — the content script, the popup, and the background worker all read from it.
+
+```js
+globalThis.PNL_CONFIG = {
+    POLL_INTERVAL_MS: 500,            // how often P&L is scraped from the Kite page
+    UI_REFRESH_INTERVAL_MS: 1500,     // how often the popup redraws
+    ALERT_COOLDOWN_MS: 5 * 60 * 1000  // minimum gap between alerts for one group
+};
+```
+
+| Parameter | Default | Controls | Used by |
+|---|---|---|---|
+| `POLL_INTERVAL_MS` | `500` (0.5s) | **The P&L monitoring frequency.** How often the positions table is scraped and evaluated against your Target/Stoploss. | `content.js` |
+| `UI_REFRESH_INTERVAL_MS` | `1500` (1.5s) | How often the popup re-renders positions and groups from local storage. Display only — does not affect alerting. | `popup.js` |
+| `ALERT_COOLDOWN_MS` | `300000` (5 min) | Cooldown throttle before the same group can alert again. | `background.js` |
+
+> **Note:** Alerts are evaluated on every poll, so `POLL_INTERVAL_MS` is the true detection latency. `UI_REFRESH_INTERVAL_MS` only governs what you see on screen.
+
+**After editing `config.js`**, reload the extension at `chrome://extensions/` (click the ⟳ icon on the card) and refresh your Kite positions tab.
+
+---
+
 ## ⚠️ Disclaimer
 
 - This extension depends inherently on Zerodha Kite's Document Object Model (HTML classes, hierarchy, etc.). Updates deployed by Zerodha may potentially break functionality unexpectedly.

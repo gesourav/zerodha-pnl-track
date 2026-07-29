@@ -328,7 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Auto-refresh UI every 1.5s — preserve scroll position to avoid jump
+    // Auto-refresh UI on the config.js interval — preserve scroll position to avoid jump
     setInterval(() => {
         chrome.storage.local.get(['currentPositions', 'groups'], (res) => {
             if (res.currentPositions) {
@@ -342,5 +342,5 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         });
-    }, 1500);
+    }, globalThis.PNL_CONFIG.UI_REFRESH_INTERVAL_MS);
 });

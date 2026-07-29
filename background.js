@@ -1,7 +1,8 @@
 // background.js
+import './config.js'; // populates globalThis.PNL_CONFIG
 
 let lastAlertTime = {}; // { groupId: timestamp }
-const COOLDOWN_MS = 5 * 60 * 1000; // 5 mins
+const COOLDOWN_MS = globalThis.PNL_CONFIG.ALERT_COOLDOWN_MS;
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.type === "UPDATE_POSITIONS") {

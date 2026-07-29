@@ -59,5 +59,5 @@ function parsePositions() {
     }
 }
 
-// Poll every 2 seconds
-setInterval(parsePositions, 500);
+// Poll the positions table at the interval defined in config.js
+setInterval(parsePositions, globalThis.PNL_CONFIG.POLL_INTERVAL_MS);
